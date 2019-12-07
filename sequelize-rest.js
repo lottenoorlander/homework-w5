@@ -20,38 +20,64 @@ const Movie = db.define("movie", {
 
 db.sync()
   .then(() =>
-    Movie.create({
-      title: "episode IV",
-      yearOfRelease: 1977,
-      synopsis:
-        "The Imperial Forces, under orders from cruel Darth Vader, hold Princess Leia hostage in their efforts to quell the rebellion against the Galactic Empire."
+    Movie.findOrCreate({
+      where: {
+        title: "episode IV",
+        yearOfRelease: 1977,
+        synopsis:
+          "The Imperial Forces, under orders from cruel Darth Vader, hold Princess Leia hostage in their efforts to quell the rebellion against the Galactic Empire."
+      }
     })
-      .then(() =>
-        Movie.create({
-          title: "episode V",
-          yearOfRelease: 1980,
-          synopsis:
-            "After the Rebels are brutally overpowered by the Empire on the ice planet Hoth, Luke Skywalker begins Jedi training with Yoda."
-        })
-      )
-      .then(() =>
-        Movie.create({
-          title: "episode VI",
-          yearOfRelease: 1983,
-          synopsis:
-            "After a daring mission to rescue Han Solo from Jabba the Hutt, the Rebels dispatch to Endor to destroy the second Death Star."
-        })
-      )
   )
+  .then(([movie, created]) => {
+    console.log(
+      movie.get({
+        plain: true
+      })
+    );
+  })
+  .then(() =>
+    Movie.findOrCreate({
+      where: {
+        title: "episode V",
+        yearOfRelease: 1980,
+        synopsis:
+          "After the Rebels are brutally overpowered by the Empire on the ice planet Hoth, Luke Skywalker begins Jedi training with Yoda."
+      }
+    })
+  )
+  .then(([movie, created]) => {
+    console.log(
+      movie.get({
+        plain: true
+      })
+    );
+  })
+  .then(() =>
+    Movie.findOrCreate({
+      where: {
+        title: "episode VI",
+        yearOfRelease: 1983,
+        synopsis:
+          "After a daring mission to rescue Han Solo from Jabba the Hutt, the Rebels dispatch to Endor to destroy the second Death Star."
+      }
+    })
+  )
+  .then(([movie, created]) => {
+    console.log(
+      movie.get({
+        plain: true
+      })
+    );
+  })
   .catch(console.error);
 
 //post movie!
-app.post("/movies", (req, res, next) => {
-  console.log(req);
-  return Movie.create(req.body)
+app.post("/movies", (req, res, next) =>
+  Movie.create(req.body)
     .then(movie => res.send(movie))
-    .catch(error => next(error));
-});
+    .catch(error => next(error))
+);
 
 //get all movies!
 app.get("/movies", (req, res, next) => {
@@ -70,7 +96,7 @@ app.get("/movie/:id", (req, res, next) =>
   )
 );
 
-// update a single movie resource!
+// update a single movie resource
 app.put("/movie/:id", (req, res, next) =>
   Movie.findByPk(req.params.id)
     .then(movie => movie.update(req.body))
