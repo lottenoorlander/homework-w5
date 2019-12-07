@@ -54,11 +54,14 @@ app.post("/movies", (req, res, next) => {
 });
 
 //get all movies!
-app.get("/movies", (req, res, next) =>
-  Movie.findAll()
-    .then(results => res.send(results))
-    .catch(error => next(error))
-);
+app.get("/movies", (req, res, next) => {
+  const limit = req.query.limit || 25;
+  const offset = req.query.offset || 0;
+
+  return Movie.findAndCountAll({ limit, offset })
+    .then(result => res.send({ movies: result.rows, total: result.count }))
+    .catch(error => next(error));
+});
 
 // read a single movie resource!
 app.get("/movie/:id", (req, res, next) =>
@@ -72,12 +75,12 @@ app.put("/movie/:id", (req, res, next) =>
   Movie.findByPk(req.params.id)
     .then(movie => movie.update(req.body))
     .then(movie => res.send(movie))
-    .catch(err => next(err))
+    .catch(error => next(error))
 );
 
 // delete a single movie resource!
 app.delete("/movie/:id", (req, res, next) =>
   Movie.destroy({ where: { id: req.params.id } })
     .then(number => res.send({ number }))
-    .catch(next)
+    .catch(error => next(error))
 );
